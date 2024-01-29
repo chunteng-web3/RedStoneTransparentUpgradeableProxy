@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: agpl-3.0
-pragma solidity 0.8.13;
+pragma solidity 0.8.21;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import "@redstone-finance/evm-connector/contracts/data-services/PrimaryProdDataServiceConsumerBase.sol";
 
