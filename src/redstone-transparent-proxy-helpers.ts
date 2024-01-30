@@ -1,8 +1,8 @@
 import { WrapperBuilder } from "@redstone-finance/evm-connector";
-import { Contract, Signer, ethers } from "ethers";
+import { BaseContract, Contract, Signer, ethers } from "ethers";
 import { RedStoneTransparentUpgradeableProxy__factory } from "../typechain-types/factories/contracts/RedStoneTransparentUpgradeableProxy__factory";
 import { RedStonePriceExtractor } from "../typechain-types/contracts/RedStonePriceExtractor";
-import { FormatTypes, Interface } from "ethers/lib/utils";
+import { FormatTypes } from "ethers/lib/utils";
 
 /**
  * This class is a wrapper builder for RedStoneTransparentUpgradeableProxy for frontend. 
@@ -16,14 +16,14 @@ export class RedStoneTransparentProxyWrapperBuilder<T extends Contract> extends 
             throw new Error('Signer is not provided');
         }
         const contractInterfaceObject = JSON.parse(contract.interface.format(FormatTypes.json) as string);
-        const redStoneTransparentProxyContract = RedStoneTransparentUpgradeableProxy__factory.connect(contract.address, signer);
-        const proxyInterfaceObject = JSON.parse(redStoneTransparentProxyContract.interface.format(FormatTypes.json) as string);
+        const proxyInterfaceObject = JSON.parse(RedStoneTransparentUpgradeableProxy__factory.createInterface().format(FormatTypes.json) as string);
+        const redStoneTransparentProxyContract = new Contract(contract.address, proxyInterfaceObject, signer);
         const combinedInterfaceObject = [
             ...contractInterfaceObject,
             ...proxyInterfaceObject
         ];
-        const wrappableCombinedContract = new ethers.Contract(redStoneTransparentProxyContract.address, new Interface(combinedInterfaceObject), signer) as T;
-        const wrappedCombinedContract = WrapperBuilder.wrap(wrappableCombinedContract);
+        const wrappableCombinedContract = new ethers.Contract(redStoneTransparentProxyContract.address, combinedInterfaceObject, signer);
+        const wrappedCombinedContract = WrapperBuilder.wrap(wrappableCombinedContract as T);
         return wrappedCombinedContract;
     }
 }
@@ -34,5 +34,6 @@ export async function setupRedStoneTransparentProxy<T extends Contract>(contract
             dataFeeds: dataFeedIDs
         });
     await wrappedCombinedContractForProxyAdmin._autoSetRedStonePayloadLength();
-    await wrappedCombinedContractForProxyAdmin._setRedstonePriceExtractor(redStonePriceExtractor.address);
+    await wrappedCombinedContractForProxyAdmin._setRedStonePriceExtractor(redStonePriceExtractor.address);
 }
+

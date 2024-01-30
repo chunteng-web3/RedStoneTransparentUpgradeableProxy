@@ -1,6 +1,4 @@
 import { expect } from 'chai';
-import { makeSuite, TestEnv } from './helpers/make-suite';
-import { FormatTypes, Interface, isBytes } from "ethers/lib/utils";
 import { Contract } from "ethers";
 import { WrapperBuilder } from "@redstone-finance/evm-connector";
 import '@nomiclabs/hardhat-ethers'
@@ -8,6 +6,7 @@ import { ethers } from "hardhat";
 import { RedStoneTransparentProxyWrapperBuilder, setupRedStoneTransparentProxy } from "../src/redstone-transparent-proxy-helpers";
 import { deployContract, getContract, getEthersSigners, getFirstSigner, SignerWithAddress } from './helpers/contracts';
 import { PriceAggregatorAdapterRedStoneImpl__factory, RedStonePriceExtractor__factory } from '../typechain-types';
+import { FormatTypes } from 'ethers/lib/utils';
 
 
 describe('Redstone Injection with RedStoneTransparentUpgradeableProxy and RedStonePriceExtractor', () => {
@@ -64,7 +63,7 @@ describe('Redstone Injection with RedStoneTransparentUpgradeableProxy and RedSto
       ...mockedMintableERC20ProxyInterfaceObject
     ];
 
-    const wrappableMockedMintableERC20ContractForProxyAdmin = new ethers.Contract(mockedMintableERC20Proxy.address, new Interface(combinedInterfaceObject), await ethers.getSigner(deployer.address));
+    const wrappableMockedMintableERC20ContractForProxyAdmin = new ethers.Contract(mockedMintableERC20Proxy.address, combinedInterfaceObject, deployer.signer);
     const wrappedMockedMintableERC20ContractForProxyAdmin = WrapperBuilder.wrap(wrappableMockedMintableERC20ContractForProxyAdmin).usingDataService(
       {
         dataFeeds: dataFeedIDs
@@ -72,9 +71,9 @@ describe('Redstone Injection with RedStoneTransparentUpgradeableProxy and RedSto
     );
 
     await wrappedMockedMintableERC20ContractForProxyAdmin._autoSetRedStonePayloadLength()
-    await wrappedMockedMintableERC20ContractForProxyAdmin._setRedstonePriceExtractor(priceAggregatorAdapterRedStoneImpl.address);
+    await wrappedMockedMintableERC20ContractForProxyAdmin._setRedStonePriceExtractor(priceAggregatorAdapterRedStoneImpl.address);
 
-    const wrappableMockedMintableERC20Contract = new ethers.Contract(mockedMintableERC20Proxy.address, new Interface(combinedInterfaceObject), await ethers.getSigner(users[1].address));
+    const wrappableMockedMintableERC20Contract = new ethers.Contract(mockedMintableERC20Proxy.address, combinedInterfaceObject, await ethers.getSigner(users[1].address));
     const wrappedMockedMintableERC20Contract = WrapperBuilder.wrap(wrappableMockedMintableERC20Contract).usingDataService(
       {
         dataFeeds: dataFeedIDs
@@ -82,7 +81,7 @@ describe('Redstone Injection with RedStoneTransparentUpgradeableProxy and RedSto
     );
 
     const wethSymbol = await priceAggregatorAdapterRedStoneImpl.symbols(wethContract.address);
-    console.log("Symbol for !", wethSymbol);
+    expect(wethSymbol).to.be.equal("ETH");
     // READ: To actually update the price with the injection, we need to call a transaction function on the wrapped contract (i.e, not just a view function).
     await wrappedMockedMintableERC20Contract.mint(100);
     console.log("Attempt to retrieve price for USDC at", usdcContract.address);
@@ -113,7 +112,7 @@ describe('Redstone Injection with RedStoneTransparentUpgradeableProxy and RedSto
     );
 
     const symbol = await priceAggregatorAdapterRedStoneImpl.symbols(usdcContract.address);
-    console.log("Symbol!", symbol);
+    expect(symbol).to.be.equal("USDC");
     // READ(C14): To actually update the price with the injection, we need to call a transaction function on the wrapped contract (i.e, not just a view function).
     await wrappedMockedMintableERC20Contract.mint(100);
     console.log("Attempt to retrieve price for USDC at", usdcContract.address);
@@ -153,6 +152,6 @@ describe('Redstone Injection with RedStoneTransparentUpgradeableProxy and RedSto
     console.log("WHAT Price without wrapper", whatPriceWithoutWrapper.toString());
     console.log("WHAT Price with wrapper", whatPriceWithWrapper.toString());
 
-    await expect(priceAggregatorAdapterRedStoneImpl.currentPrice(deployer.address)).to.be.revertedWith("Price is not available");
+    await expect(priceAggregatorAdapterRedStoneImpl.currentPrice(deployer.address)).to.be.revertedWith("PriceNotAvailable");
   });
 });

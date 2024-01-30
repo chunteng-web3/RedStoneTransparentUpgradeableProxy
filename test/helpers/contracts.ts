@@ -1,15 +1,14 @@
 import { Contract, ContractTransaction, Signer } from "ethers";
-import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 export interface SignerWithAddress {
   signer: Signer;
   address: string;
 }
 
-export let HRE: HardhatRuntimeEnvironment
+import hre from "hardhat"
 
 export const getEthersSigners = async (): Promise<Signer[]> => {
-  const ethersSigners = await Promise.all(await HRE.ethers.getSigners());
+  const ethersSigners = await Promise.all(await hre.ethers.getSigners());
   // if (usingDefender()) {
   //   const [, ...users] = ethersSigners;
   //   return [await getDefenderRelaySigner(), ...users];
@@ -24,7 +23,7 @@ export const deployContract = async <ContractType extends Contract>(
   contractName: string,
   args: any[]
 ): Promise<ContractType> => {
-  const contract = (await (await HRE.ethers.getContractFactory(contractName))
+  const contract = (await (await hre.ethers.getContractFactory(contractName))
     .connect(await getFirstSigner())
     .deploy(...args)) as ContractType;
   await waitForTx(contract.deployTransaction);
@@ -34,4 +33,4 @@ export const deployContract = async <ContractType extends Contract>(
 export const getContract = async <ContractType extends Contract>(
   contractName: string,
   address: string
-): Promise<ContractType> => (await HRE.ethers.getContractAt(contractName, address)) as ContractType;
+): Promise<ContractType> => (await hre.ethers.getContractAt(contractName, address)) as ContractType;
