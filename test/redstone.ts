@@ -38,7 +38,6 @@ describe('Redstone Injection with RedStoneTransparentUpgradeableProxy and RedSto
 
     usdcContract = await deployContract("MintableERC20", ["Mocked USDC", "USDC", 6]);
     wethContract = await deployContract("MintableERC20", ["Mocked WETH", "WETH", 18]);
-
     whatContract = await deployContract("MintableERC20", ["Mocked WHAT", "WHAT", 18]);
 
     priceAggregatorAdapterRedStoneImpl = await deployContract("PriceAggregatorAdapterRedStoneImpl", [100]);
@@ -86,7 +85,9 @@ describe('Redstone Injection with RedStoneTransparentUpgradeableProxy and RedSto
     await wrappedMockedMintableERC20Contract.mint(100);
     console.log("Attempt to retrieve price for USDC at", usdcContract.address);
     const USDC_PRICE = await priceAggregatorAdapterRedStoneImpl.currentPrice(usdcContract.address)
+    const WETH_PRICE = await priceAggregatorAdapterRedStoneImpl.currentPrice(wethContract.address)
     console.log("USDC_PRICE", USDC_PRICE.toString());
+    console.log("WETH_PRICE", WETH_PRICE.toString());
   });
   it("Should be able to update prices through RedStone with RedStoneTransparentUpgradeableProxy and RedStonePriceExtractor with helper", async function () {
     /**
