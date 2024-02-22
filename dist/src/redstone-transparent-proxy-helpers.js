@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setupRedStoneTransparentProxy = exports.RedStoneTransparentProxyWrapperBuilder = void 0;
+exports.setupRedStoneTransparentProxyPrimaryDemo = exports.setupRedStoneTransparentProxy = exports.RedStoneTransparentProxyWrapperBuilder = void 0;
 const evm_connector_1 = require("@redstone-finance/evm-connector");
 const ethers_1 = require("ethers");
 const RedStoneTransparentUpgradeableProxy__factory_1 = require("../typechain-types/factories/contracts/RedStoneTransparentUpgradeableProxy__factory");
@@ -38,3 +38,14 @@ async function setupRedStoneTransparentProxy(contract, proxyAdminSigner, redSton
     await wrappedCombinedContractForProxyAdmin._setRedStonePriceExtractor(redStonePriceExtractor.address, { nonce: txCount++ });
 }
 exports.setupRedStoneTransparentProxy = setupRedStoneTransparentProxy;
+async function setupRedStoneTransparentProxyPrimaryDemo(contract, proxyAdminSigner, redStonePriceExtractor, dataFeedIDs) {
+    let txCount = await proxyAdminSigner.getTransactionCount();
+    const wrappedCombinedContractForProxyAdmin = RedStoneTransparentProxyWrapperBuilder.wrapForRedStoneTransparentProxy(contract, proxyAdminSigner).usingDataService({
+        dataFeeds: dataFeedIDs,
+        dataServiceId: "redstone-primary-demo",
+        uniqueSignersCount: 2
+    });
+    await wrappedCombinedContractForProxyAdmin._autoSetRedStonePayloadLength({ nonce: txCount++ });
+    await wrappedCombinedContractForProxyAdmin._setRedStonePriceExtractor(redStonePriceExtractor.address, { nonce: txCount++ });
+}
+exports.setupRedStoneTransparentProxyPrimaryDemo = setupRedStoneTransparentProxyPrimaryDemo;

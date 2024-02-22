@@ -1,6 +1,6 @@
 {
   "name": "@chunteng-web3/redstone_transparent_upgradeable_proxy",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "This project is an extension and combination of `RedStone` and `OpenZeppelin` transparent proxy that allows wrapping any existing or audited smart contracts to migrate to a pull-model based Oracle services without re-deployments or re-auditing, and also a one-click migration for a smooth upgrading experience.",
   "main": "dist/src/redstone-transparent-proxy-helpers.js",
   "scripts": {

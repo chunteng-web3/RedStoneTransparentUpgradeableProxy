@@ -34,7 +34,19 @@ export async function setupRedStoneTransparentProxy<T extends Contract>(contract
         {
             dataFeeds: dataFeedIDs
         });
-    await wrappedCombinedContractForProxyAdmin._autoSetRedStonePayloadLength({nonce: txCount++});
-    await wrappedCombinedContractForProxyAdmin._setRedStonePriceExtractor(redStonePriceExtractor.address, {nonce: txCount++});
+    await wrappedCombinedContractForProxyAdmin._autoSetRedStonePayloadLength({ nonce: txCount++ });
+    await wrappedCombinedContractForProxyAdmin._setRedStonePriceExtractor(redStonePriceExtractor.address, { nonce: txCount++ });
 }
 
+
+export async function setupRedStoneTransparentProxyPrimaryDemo<T extends Contract>(contract: T, proxyAdminSigner: Signer, redStonePriceExtractor: RedStonePriceExtractor, dataFeedIDs: string[]) {
+    let txCount = await proxyAdminSigner.getTransactionCount();
+    const wrappedCombinedContractForProxyAdmin = RedStoneTransparentProxyWrapperBuilder.wrapForRedStoneTransparentProxy(contract, proxyAdminSigner).usingDataService(
+        {
+            dataFeeds: dataFeedIDs,
+            dataServiceId: "redstone-primary-demo",
+            uniqueSignersCount: 2
+        });
+    await wrappedCombinedContractForProxyAdmin._autoSetRedStonePayloadLength({ nonce: txCount++ });
+    await wrappedCombinedContractForProxyAdmin._setRedStonePriceExtractor(redStonePriceExtractor.address, { nonce: txCount++ });
+}

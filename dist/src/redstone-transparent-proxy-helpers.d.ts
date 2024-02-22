@@ -8,3 +8,4 @@ export declare class RedStoneTransparentProxyWrapperBuilder<T extends Contract> 
     static wrapForRedStoneTransparentProxy<T extends Contract>(contract: T, signer?: Signer): WrapperBuilder<T>;
 }
 export declare function setupRedStoneTransparentProxy<T extends Contract>(contract: T, proxyAdminSigner: Signer, redStonePriceExtractor: RedStonePriceExtractor, dataFeedIDs: string[]): Promise<void>;
+export declare function setupRedStoneTransparentProxyPrimaryDemo<T extends Contract>(contract: T, proxyAdminSigner: Signer, redStonePriceExtractor: RedStonePriceExtractor, dataFeedIDs: string[]): Promise<void>;
